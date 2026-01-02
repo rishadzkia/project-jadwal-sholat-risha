@@ -1,0 +1,434 @@
+@font-face {
+  font-family: "DS-Digital";
+  src: url("DS-DIGI.TTF");
+}
+
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: radial-gradient(circle at top, #1c1c1c, #0f0f0f);
+  color: #fff;
+  font-family: "Inter", sans-serif;
+}
+
+.container {
+  width: 100vw;
+  background-size: cover;
+  background-position: center 40%;
+  background-repeat: no-repeat;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  z-index: 0;
+}
+
+.container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: linear-gradient(90deg, #1f1f1f, #262626);
+  border-radius: 0 0 50px 50px;
+  border-bottom: 2px solid rgba(255, 152, 0, 0.25);
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.masjid-info h1 {
+  font-size: 22px;
+}
+
+.masjid-info p {
+  font-size: 12px;
+  color: #ccc;
+}
+.masjid-info {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* jarak logo dan teks */
+}
+
+.masjid-info img {
+  width: 48px; 
+  height: auto;
+}
+
+.masjid-text h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.masjid-text em {
+  font-size: 13px;
+  color: #ccc;
+  text-decoration: italic;
+}
+
+.clock-box {
+  text-align: center;
+  color: #fff;
+}
+
+/* FRAME JAM */
+.clock-frame {
+  padding: 10px 22px;
+  border: 2px solid #ffb74d;
+  border-radius: 16px;
+  background: rgba(255, 152, 0, 0.08);
+}
+
+.clock {
+  font-family: "DS-Digital", monospace;
+  font-size: 22px;
+  color: #ffb74d;
+  letter-spacing: 3px;
+}
+
+/* TANGGAL */
+.date {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  color: #e0e0e0;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+.date em {
+  font-size: 16px;
+  color: #bdbdbd;
+}
+
+/* HERO IMAGE */
+.hero {
+  height: 35vh;
+  min-height: 320px;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  transition: background-image 1s ease-in-out;
+}
+
+/* IMAGE BACKGROUND */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+.hero-bg.active {
+  opacity: 1;
+}
+
+/* RAMADHAN TEXT */
+.hero-text {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 6px 12px;
+  border-radius: 0 16px 16px 0;
+  z-index: 5;
+  color: #fff;
+}
+
+/* NEXT PRAYER */
+.next-prayer {
+  position: absolute;
+  bottom: 15px;
+  right: 0px;
+  z-index: 5;
+  background: #ff9800;
+  padding: 8px 14px;
+  border-radius: 12px 0 0 12px;
+  color: #fff;
+}
+
+/* LABEL ISYA */
+.next-prayer span {
+  color: #fdfdfdff;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+
+  padding: 6px 12px;
+  border-right: 2px solid rgba(246, 246, 246, 0.96);
+}
+
+/* TIMER */
+.next-prayer strong {
+  background: #ff9800;
+  color: #fefdfdff;
+  font-family: "DS-Digital", monospace;
+  font-size: 20px;
+  letter-spacing: 2px;
+
+  padding: 8px 18px;
+}
+
+/* PRAYER TIMES */
+.prayer-times {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  padding: 18px;
+  background: transparent; 
+}
+
+.prayer {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+.prayer-satu {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px;
+  border-radius: 50px 10px 10px 50px;
+  text-align: center;
+}
+.prayer-dua {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px;
+  border-radius: 10px 50px 50px 10px;
+  text-align: center;
+}
+
+.prayer p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.prayer-satu p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.prayer-dua p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.prayer-frame {
+  display: inline-block;
+  padding: 8px 25px;
+  border: 2px solid #ff9800;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+
+.prayer span {
+  font-family: "DS-Digital", monospace;
+  font-size: 25px;
+  letter-spacing: 1px;
+  color: #ff9800;
+}
+.prayer-satu span {
+  font-family: "DS-Digital", monospace;
+  font-size: 25px;
+  letter-spacing: 1px;
+  color: #ff9800;
+}
+.prayer-dua span {
+  font-family: "DS-Digital", monospace;
+  font-size: 25px;
+  letter-spacing: 1px;
+  color: #ff9800;
+}
+
+/* FOOTER */
+.footer {
+  background: #1a1a1a; 
+  color: #ffffffff;
+  padding: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* =========================
+   RESPONSIVE BREAKPOINT
+========================= */
+
+/* TABLET (≤ 1024px) */
+@media (max-width: 1024px) {
+  .header {
+    flex-direction: column;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .masjid-info {
+    justify-content: center;
+  }
+
+  .clock-frame {
+    padding: 8px 18px;
+  }
+
+  .clock {
+    font-size: 20px;
+  }
+
+  .hero {
+    height: 32vh;
+  }
+
+  .prayer-times {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* MOBILE (≤ 768px) */
+@media (max-width: 768px) {
+  .header {
+    padding: 16px;
+    border-radius: 0 0 30px 30px;
+  }
+
+  .masjid-info img {
+    width: 40px;
+  }
+
+  .masjid-text h1 {
+    font-size: 18px;
+  }
+
+  .masjid-text em {
+    font-size: 12px;
+  }
+
+  .clock {
+    font-size: 18px;
+    letter-spacing: 2px;
+  }
+
+  .date,
+  .date em {
+    font-size: 13px;
+  }
+
+  .hero {
+    height: 28vh;
+    min-height: 240px;
+  }
+
+  .hero-text {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .next-prayer {
+    padding: 6px 10px;
+  }
+
+  .next-prayer span {
+    font-size: 14px;
+    padding: 4px 8px;
+  }
+
+  .next-prayer strong {
+    font-size: 16px;
+    padding: 6px 10px;
+  }
+
+  .prayer-times {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 14px;
+  }
+
+  .prayer,
+  .prayer-satu,
+  .prayer-dua {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .prayer span,
+  .prayer-satu span,
+  .prayer-dua span {
+    font-size: 22px;
+  }
+}
+
+/* MOBILE KECIL (≤ 480px) */
+@media (max-width: 480px) {
+  .masjid-text h1 {
+    font-size: 16px;
+  }
+
+  .clock {
+    font-size: 16px;
+  }
+
+  .hero {
+    height: 24vh;
+    min-height: 200px;
+  }
+
+  .next-prayer {
+    bottom: 10px;
+  }
+
+  .hero-text {
+    bottom: 10px;
+  }
+
+  .prayer-times {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    font-size: 12px;
+  }
+}
+
+
