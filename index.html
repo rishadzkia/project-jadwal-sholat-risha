@@ -114,7 +114,7 @@
       second: "2-digit",
     });
 
-    /* TANGGAL MASEHI */
+    /* TANGGAL MASEHI (NASIONAL) */
     const tanggalMasehi = now.toLocaleDateString("id-ID", {
       weekday: "long",
       day: "numeric",
@@ -122,54 +122,44 @@
       year: "numeric",
     });
 
-    /* TANGGAL HIJRIYAH (FIX UNTUK MOBILE) */
-    try {
-      // Menggunakan umalqura dan force angka latin agar tidak jadi SM/BCE di HP
-      let tanggalHijriah = new Intl.DateTimeFormat("id-ID-u-ca-islamic-umalqura-nu-latn", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(now);
+    /* TANGGAL HIJRIYAH */
+    const tanggalHijriah = new Intl.DateTimeFormat("id-ID-u-ca-islamic", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(now);
 
-      // Membersihkan teks SM atau BCE jika muncul di browser HP tertentu
-      tanggalHijriah = tanggalHijriah.replace(/SM/g, "").replace(/BCE/g, "").trim();
-
-      /* OUTPUT KE HTML */
-      document.getElementById("date").innerHTML = `
-        ${tanggalMasehi}<br>
-        <em>${tanggalHijriah} H</em>
-      `;
-    } catch (e) {
-      // Fallback jika browser sangat lama tidak support Intl
-      document.getElementById("date").innerHTML = `${tanggalMasehi}`;
-    }
+    /* OUTPUT KE HTML */
+    document.getElementById("date").innerHTML = `
+      ${tanggalMasehi}<br>
+      <em>${tanggalHijriah}</em>
+    `;
   }
+
+  /* Update jam & tanggal tiap 1 detik */
+  setInterval(updateDateTime, 1000);
+  updateDateTime();
 
   /* =====================
      KONVERSI TANGGAL HIJRIYAH
   ====================== */
   function getHijriDate(date = new Date()) {
-    try {
-      // Menggunakan locale 'en' hanya untuk mengambil angka agar kalkulasi stabil
-      const hijri = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
-        day: "numeric",
-        month: "numeric",
-        year: "numeric",
-      }).formatToParts(date);
+    const hijri = new Intl.DateTimeFormat("id-ID-u-ca-islamic", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+    }).formatToParts(date);
 
-      let hDay, hMonth, hYear;
+    let hDay, hMonth, hYear;
 
-      hijri.forEach((part) => {
-        if (part.type === "day") hDay = parseInt(part.value);
-        if (part.type === "month") hMonth = parseInt(part.value);
-        if (part.type === "year") hYear = parseInt(part.value);
-      });
+    /* Ambil hari, bulan, dan tahun hijriyah */
+    hijri.forEach((part) => {
+      if (part.type === "day") hDay = parseInt(part.value);
+      if (part.type === "month") hMonth = parseInt(part.value);
+      if (part.type === "year") hYear = parseInt(part.value);
+    });
 
-      return { hDay, hMonth, hYear };
-    } catch (e) {
-      // Fallback sederhana jika error
-      return { hDay: 1, hMonth: 1, hYear: 1447 };
-    }
+    return { hDay, hMonth, hYear };
   }
 
   /* =====================
