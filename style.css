@@ -11,7 +11,7 @@
 
 .marquee span {
   display: inline-block;
-  padding-left: 100%;
+  padding-left: 120%;
   animation: marquee 20s linear infinite;
 }
 
@@ -32,8 +32,8 @@
 
 html,
 body {
-  width: 100%;
-  height: 100%;
+  min-height: 100%;
+
   margin: 0;
 }
 
@@ -44,7 +44,8 @@ body {
 }
 
 .container {
-  width: 100vw;
+  width: 100%;
+  min-height: 100vh;
   background-size: cover;
   background-position: center 40%;
   background-repeat: no-repeat;
@@ -70,12 +71,21 @@ body {
 .header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+
   padding: 18px 24px;
+  margin: 0 16px;
+
   background: linear-gradient(90deg, #1f1f1f, #262626);
-  border-radius: 0 0 50px 50px;
+  border-radius: 0 0 40px 40px;
   border-bottom: 2px solid rgba(255, 152, 0, 0.25);
-  margin-left: 20px;
-  margin-right: 20px;
+
+  position: relative;
+  z-index: 10;
+}
+
+:root {
+  --header-height: 110px;
 }
 
 .masjid-info h1 {
@@ -93,7 +103,7 @@ body {
 }
 
 .masjid-info img {
-  width: 48px; 
+  width: 48px;
   height: auto;
 }
 
@@ -145,9 +155,11 @@ body {
 
 /* HERO IMAGE */
 .hero {
-  height: 35vh;
-  min-height: 320px;
+  position: relative;
+  height: calc(70vh - var(--header-height));
+  min-height: unset;
 
+  overflow: hidden;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -175,7 +187,8 @@ body {
   position: absolute;
   bottom: 15px;
   left: 0;
-  font-size: 14px;
+  font-size: clamp(12px, 2.5vw, 16px);
+
   background: rgba(0, 0, 0, 0.6);
   padding: 6px 12px;
   border-radius: 0 16px 16px 0;
@@ -223,7 +236,9 @@ body {
   grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   padding: 18px;
-  background: transparent; 
+  background: transparent;
+
+  margin-bottom: 0px;
 }
 
 .prayer {
@@ -287,149 +302,101 @@ body {
 
 /* FOOTER */
 .footer {
-  background: #1a1a1a; 
+  background: #1a1a1ab9;
+
   color: #ffffffff;
   padding: 12px;
   font-size: 13px;
   text-align: center;
+  margin-top: 0px;
 }
 
 /* =========================
-   RESPONSIVE BREAKPOINT
+   RESPONSIVE BREAKPOINTS
 ========================= */
 
-/* TABLET (≤ 1024px) */
-@media (max-width: 1024px) {
-  .header {
-    flex-direction: column;
-    gap: 14px;
-    text-align: center;
-  }
+/* =========================
+    RESPONSIVE BREAKPOINTS
+========================= */
 
-  .masjid-info {
-    justify-content: center;
-  }
-
-  .clock-frame {
-    padding: 8px 18px;
-  }
-
-  .clock {
-    font-size: 20px;
-  }
-
-  .hero {
-    height: 32vh;
-  }
-
+/* Tablet & HP Besar (Lebar di bawah 992px) */
+@media (max-width: 992px) {
   .prayer-times {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* 3 Kolom di tablet */
+  }
+  
+  .prayer-satu, .prayer-dua {
+    border-radius: 10px; /* Reset radius lengkung agar seragam saat pecah kolom */
   }
 }
 
-/* MOBILE (≤ 768px) */
+/* HP (Lebar di bawah 768px) */
 @media (max-width: 768px) {
   .header {
-    padding: 16px;
-    border-radius: 0 0 30px 30px;
+    flex-direction: column; /* Masjid info dan Jam menumpuk atas-bawah */
+    gap: 20px;
+    text-align: center;
+    border-radius: 0 0 25px 25px;
   }
 
-  .masjid-info img {
-    width: 40px;
-  }
-
-  .masjid-text h1 {
-    font-size: 18px;
-  }
-
-  .masjid-text em {
-    font-size: 12px;
-  }
-
-  .clock {
-    font-size: 18px;
-    letter-spacing: 2px;
-  }
-
-  .date,
-  .date em {
-    font-size: 13px;
+  .masjid-info {
+    flex-direction: column;
   }
 
   .hero {
-    height: 28vh;
-    min-height: 240px;
+    height: 50vh; /* Perkecil tinggi hero di HP */
   }
 
   .hero-text {
-    font-size: 12px;
-    padding: 5px 10px;
+    width: 100%;
+    border-radius: 0;
+    text-align: center;
+    bottom: 60px; /* Naikkan agar tidak menumpuk dengan timer */
   }
 
   .next-prayer {
-    padding: 6px 10px;
+    width: 100%;
+    border-radius: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 0;
   }
 
   .next-prayer span {
     font-size: 14px;
-    padding: 4px 8px;
+    border-right: 1px solid rgba(255,255,255,0.3);
   }
 
   .next-prayer strong {
-    font-size: 16px;
-    padding: 6px 10px;
-  }
-
-  .prayer-times {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 14px;
-  }
-
-  .prayer,
-  .prayer-satu,
-  .prayer-dua {
-    padding: 10px;
-    border-radius: 14px;
-  }
-
-  .prayer span,
-  .prayer-satu span,
-  .prayer-dua span {
-    font-size: 22px;
+    font-size: 18px;
   }
 }
 
-/* MOBILE KECIL (≤ 480px) */
+/* HP Kecil (Lebar di bawah 480px) */
 @media (max-width: 480px) {
+  .prayer-times {
+    grid-template-columns: repeat(2, 1fr); /* 2 Kolom saja di HP kecil */
+    padding: 10px;
+  }
+
   .masjid-text h1 {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .clock {
-    font-size: 16px;
+    font-size: 28px;
   }
 
-  .hero {
-    height: 24vh;
-    min-height: 200px;
+  .date {
+    font-size: 14px;
   }
 
-  .next-prayer {
-    bottom: 10px;
+  .prayer-frame {
+    padding: 5px 15px;
   }
 
-  .hero-text {
-    bottom: 10px;
-  }
-
-  .prayer-times {
-    grid-template-columns: 1fr;
-  }
-
-  .footer {
-    font-size: 12px;
+  .prayer span {
+    font-size: 20px;
   }
 }
-
-
-
