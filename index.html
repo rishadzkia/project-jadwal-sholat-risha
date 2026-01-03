@@ -101,20 +101,43 @@
    
     <script>
   /* =====================
-     JAM & TANGGAL REAL-TIME
+      KONFIGURASI & HELPER
+  ====================== */
+  
+  // Fungsi untuk mendapatkan data Hijriah yang stabil di semua perangkat (Desktop & Mobile)
+  function getHijriParts(date = new Date()) {
+    try {
+      // Menggunakan locale 'en' dan umalqura agar output angka konsisten (1, 2, 3...)
+      const formatter = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      });
+      const parts = formatter.formatToParts(date);
+      const hash = {};
+      parts.forEach(p => { if(p.type !== 'literal') hash[p.type] = parseInt(p.value); });
+      return hash; // Output: {day: 14, month: 7, year: 1447}
+    } catch (e) {
+      console.error("Hijri Error:", e);
+      return { day: 1, month: 1, year: 1447 };
+    }
+  }
+
+  /* =====================
+      JAM & TANGGAL REAL-TIME
   ====================== */
   function updateDateTime() {
     const now = new Date();
 
-    /* JAM REAL-TIME */
+    // 1. Jam Real-time
     const clock = document.getElementById("clock");
     clock.textContent = now.toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    });
+    }).replace(/\./g, ' : '); // Mengubah titik jadi titik dua jika browser pake format ID
 
-    /* TANGGAL MASEHI (NASIONAL) */
+    // 2. Tanggal Masehi
     const tanggalMasehi = now.toLocaleDateString("id-ID", {
       weekday: "long",
       day: "numeric",
@@ -122,117 +145,80 @@
       year: "numeric",
     });
 
-    /* TANGGAL HIJRIYAH */
-    const tanggalHijriah = new Intl.DateTimeFormat("id-ID-u-ca-islamic", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(now);
+    // 3. Tanggal Hijriyah (Solusi Fix Mobile "SM")
+    const hParts = getHijriParts(now);
+    const namaBulanHijri = [
+      "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", 
+      "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", 
+      "Ramadhan", "Syawwal", "Dzulqa'dah", "Dzulhijjah"
+    ];
+    
+    // Kita rakit manual agar tidak ada teks "SM" atau "BCE" dari browser
+    const teksHijriah = `${hParts.day} ${namaBulanHijri[hParts.month - 1]} ${hParts.year} H`;
 
-    /* OUTPUT KE HTML */
     document.getElementById("date").innerHTML = `
       ${tanggalMasehi}<br>
-      <em>${tanggalHijriah}</em>
+      <em>${teksHijriah}</em>
     `;
   }
 
-  /* Update jam & tanggal tiap 1 detik */
   setInterval(updateDateTime, 1000);
   updateDateTime();
 
   /* =====================
-     KONVERSI TANGGAL HIJRIYAH
-  ====================== */
-  function getHijriDate(date = new Date()) {
-    const hijri = new Intl.DateTimeFormat("id-ID-u-ca-islamic", {
-      day: "numeric",
-      month: "numeric",
-      year: "numeric",
-    }).formatToParts(date);
-
-    let hDay, hMonth, hYear;
-
-    /* Ambil hari, bulan, dan tahun hijriyah */
-    hijri.forEach((part) => {
-      if (part.type === "day") hDay = parseInt(part.value);
-      if (part.type === "month") hMonth = parseInt(part.value);
-      if (part.type === "year") hYear = parseInt(part.value);
-    });
-
-    return { hDay, hMonth, hYear };
-  }
-
-  /* =====================
-     HITUNG MUNDUR RAMADHAN
+      HITUNG MUNDUR RAMADHAN
   ====================== */
   function ramadhanHijriCountdown() {
     const now = new Date();
-    const hijriToday = getHijriDate(now);
+    const hToday = getHijriParts(now);
+    
+    const TARGET_MONTH = 9; // Ramadhan
+    let targetYear = hToday.year;
 
-    const RAMADHAN_MONTH = 9; // Bulan Ramadhan (Hijriyah)
-    let targetYear = hijriToday.hYear;
-
-    /* Jika Ramadhan tahun ini sudah lewat, targetkan tahun depan */
-    if (
-      hijriToday.hMonth > RAMADHAN_MONTH ||
-      (hijriToday.hMonth === RAMADHAN_MONTH && hijriToday.hDay > 1)
-    ) {
+    // Jika sudah lewat Ramadhan tahun ini, target tahun depan
+    if (hToday.month > TARGET_MONTH || (hToday.month === TARGET_MONTH && hToday.day > 1)) {
       targetYear++;
     }
 
-    /* Hitung jumlah hari menuju 1 Ramadhan */
     let daysRemaining = 0;
     let tempDate = new Date(now);
 
-    while (true) {
-      const h = getHijriDate(tempDate);
-
-      if (
-        h.hYear === targetYear &&
-        h.hMonth === RAMADHAN_MONTH &&
-        h.hDay === 1
-      ) {
+    // Loop aman untuk mencari selisih hari
+    for (let i = 0; i < 400; i++) {
+      const h = getHijriParts(tempDate);
+      if (h.year === targetYear && h.month === TARGET_MONTH && h.day === 1) {
         break;
       }
-
       daysRemaining++;
       tempDate.setDate(tempDate.getDate() + 1);
     }
 
-    /* Tampilkan hasil ke HTML */
-    document.getElementById("ramadhanCountdown").innerText =
+    document.getElementById("ramadhanCountdown").innerText = 
       `${daysRemaining} Hari Menuju Bulan Suci Ramadhan`;
   }
 
-  /* Update countdown Ramadhan tiap 1 jam */
+  // Update tiap 1 jam
   setInterval(ramadhanHijriCountdown, 3600000);
   ramadhanHijriCountdown();
 
   /* =====================
-     LOAD JADWAL SHOLAT (API ALADHAN)
+      LOAD JADWAL SHOLAT (API)
   ====================== */
-  async function loadPrayerTimesAladhan() {
+  async function loadPrayerTimes() {
     try {
       const today = new Date();
-
-      /* Format tanggal DD-MM-YYYY */
       const day = String(today.getDate()).padStart(2, "0");
       const month = String(today.getMonth() + 1).padStart(2, "0");
       const year = today.getFullYear();
 
-      /* URL API jadwal sholat */
+      // Menggunakan Jonggol, Indonesia sesuai kodemu
       const url = `https://api.aladhan.com/v1/timingsByCity/${day}-${month}-${year}?city=Jonggol&country=Indonesia&method=11`;
-
-      console.log("Fetch Aladhan:", url);
-
+      
       const response = await fetch(url);
       const json = await response.json();
-
-      console.log("Response Aladhan:", json);
-
       const t = json.data.timings;
 
-      /* Tampilkan jadwal sholat ke HTML */
+      // Update Tampilan Jadwal
       document.getElementById("subuh").textContent = t.Fajr;
       document.getElementById("syuruq").textContent = t.Sunrise;
       document.getElementById("dzuhur").textContent = t.Dhuhr;
@@ -240,124 +226,82 @@
       document.getElementById("maghrib").textContent = t.Maghrib;
       document.getElementById("isya").textContent = t.Isha;
 
-      /* Jalankan countdown sholat terdekat */
-      startNextPrayerCountdown(json.data.timings);
-
-      /* Kirim ke fungsi lain jika tersedia */
-      if (typeof countdownNextPrayer === "function") {
-        countdownNextPrayer({
-          subuh: t.Fajr,
-          dzuhur: t.Dhuhr,
-          asar: t.Asr,
-          maghrib: t.Maghrib,
-          isya: t.Isha,
-        });
-      }
+      startNextPrayerCountdown(t);
     } catch (error) {
-      console.error("GAGAL LOAD JADWAL SHOLAT (ALADHAN):", error);
+      console.error("Gagal ambil jadwal sholat:", error);
     }
   }
 
-  /* Load jadwal sholat saat halaman dibuka */
-  loadPrayerTimesAladhan();
-
-  /* Reload otomatis jadwal sholat jam 00:01 */
-  setInterval(() => {
-    const now = new Date();
-    if (now.getHours() === 0 && now.getMinutes() === 1) {
-      loadPrayerTimesAladhan();
-    }
-  }, 60000);
-
   /* =====================
-     COUNTDOWN SHOLAT TERDEKAT
+      COUNTDOWN SHOLAT TERDEKAT
   ====================== */
-  let nextPrayerInterval = null;
-
+  let prayerTimer;
   function startNextPrayerCountdown(timings) {
-    if (nextPrayerInterval) clearInterval(nextPrayerInterval);
+    if (prayerTimer) clearInterval(prayerTimer);
 
-    function updateCountdown() {
+    function update() {
       const now = new Date();
-
-      /* Daftar sholat harian */
-      const prayerList = [
+      const prayers = [
         { name: "Subuh", time: timings.Fajr },
         { name: "Dzuhur", time: timings.Dhuhr },
         { name: "Ashar", time: timings.Asr },
         { name: "Maghrib", time: timings.Maghrib },
-        { name: "Isya", time: timings.Isha },
+        { name: "Isya", time: timings.Isha }
       ];
 
-      let targetPrayer = null;
+      let target = null;
       let targetTime = null;
 
-      /* Cari sholat terdekat */
-      for (let p of prayerList) {
-        const [h, m] = p.time.split(":");
-        const prayerTime = new Date();
-        prayerTime.setHours(h, m, 0, 0);
+      for (let p of prayers) {
+        const [h, m] = p.time.split(':');
+        let pDate = new Date();
+        pDate.setHours(h, m, 0, 0);
 
-        if (prayerTime > now) {
-          targetPrayer = p.name;
-          targetTime = prayerTime;
+        if (pDate > now) {
+          target = p.name;
+          targetTime = pDate;
           break;
         }
       }
 
-      /* Jika semua sholat hari ini sudah lewat → Subuh besok */
-      if (!targetPrayer) {
-        const [h, m] = timings.Fajr.split(":");
-        targetPrayer = "Subuh";
+      // Jika Isya sudah lewat, target Subuh besok
+      if (!target) {
+        target = "Subuh";
+        const [h, m] = prayers[0].time.split(':');
         targetTime = new Date();
         targetTime.setDate(targetTime.getDate() + 1);
         targetTime.setHours(h, m, 0, 0);
       }
 
-      /* Hitung selisih waktu */
       const diff = targetTime - now;
-
       const hh = String(Math.floor(diff / 3600000)).padStart(2, "0");
       const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
       const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
 
-      /* Tampilkan ke HTML */
-      document.getElementById("nextPrayerName").textContent = targetPrayer;
-      document.getElementById("nextPrayerCountdown").textContent =
-        `${hh} : ${mm} : ${ss}`;
+      document.getElementById("nextPrayerName").textContent = target;
+      document.getElementById("nextPrayerCountdown").textContent = `${hh} : ${mm} : ${ss}`;
     }
 
-    updateCountdown();
-    nextPrayerInterval = setInterval(updateCountdown, 1000);
+    update();
+    prayerTimer = setInterval(update, 1000);
   }
 
+  loadPrayerTimes();
+
   /* =====================
-     SLIDESHOW BACKGROUND (HERO)
+      SLIDESHOW BACKGROUND
   ====================== */
+  const container = document.querySelector(".container");
+  const backgrounds = ["bg1.jpg", "bg2.jpg", "bg3.jpg"]; 
+  let bgIndex = 0;
 
-  /* Transisi antar elemen background */
-  const heroImages = document.querySelectorAll(".hero-bg");
-  let heroIndex = 0;
+  // Set background awal
+  container.style.backgroundImage = `url(${backgrounds[0]})`;
+  container.style.transition = "background-image 1.5s ease-in-out";
 
   setInterval(() => {
-    heroImages[heroIndex].classList.remove("active");
-    heroIndex = (heroIndex + 1) % heroImages.length;
-    heroImages[heroIndex].classList.add("active");
-  }, 10000);
-
-  /* Background otomatis via inline style */
-  const hero = document.querySelector(".container");
-
-  const backgrounds = ["bg1.jpg", "bg2.jpg", "bg3.jpg"];
-  let index = 0;
-
-  /* Background awal */
-  hero.style.backgroundImage = `url(${backgrounds[0]})`;
-
-  /* Ganti background tiap 10 detik */
-  setInterval(() => {
-    index = (index + 1) % backgrounds.length;
-    hero.style.backgroundImage = `url(${backgrounds[index]})`;
+    bgIndex = (bgIndex + 1) % backgrounds.length;
+    container.style.backgroundImage = `url(${backgrounds[bgIndex]})`;
   }, 10000);
 </script>
 
