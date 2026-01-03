@@ -123,11 +123,11 @@
     });
 
     /* TANGGAL HIJRIYAH */
-    const tanggalHijriah = new Intl.DateTimeFormat("id-ID-u-ca-islamic", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(now);
+    const hijri = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+    }).formatToParts(date);
 
     /* OUTPUT KE HTML */
     document.getElementById("date").innerHTML = `
